@@ -1,0 +1,4 @@
+- Make sure to create new branch in vs code before committing to Github
+- When committing in vs code, add title skip line the bulletin what is going on in the changes
+- Select commit and push, then create PR in GitHub, request reviewers for review if necessary (needed done asap)
+- Squash, merge, then delete
