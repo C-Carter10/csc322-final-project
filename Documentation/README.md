@@ -3,6 +3,8 @@ csc322 Final Project Repo
 
 This is the repository for CSC322 Final Project
 
+[![ESLint](https://github.com/C-Carter10/csc322-final-project/actions/workflows/eslint.yml/badge.svg)](https://github.com/C-Carter10/csc322-final-project/actions/workflows/eslint.yml)
+
 # Instructions:
 You need to implement a program to demonstrate the Goldbach conjecture. The German mathematician Christian
 Goldbach (1690-1764) conjectured that every even number greater than two can be represented by a sum of two prime
@@ -62,3 +64,4 @@ Goldbach pairs so you can count them before outputting (R5 and R6).
 • You can assume that the input file always exists, and it contains data in the correct format (that is, no error checking is needed).
 
 • You can assume that the input file contains one number per line, and those numbers ae always even integers between 4 to 100,000 (inclusive). The number of lines in the file is NOT known in advance, and the end of the file signals the end of input. Also, the values in the file can appear in any order (R4).
+
