@@ -1,28 +1,35 @@
-// This app demonstrates the Goldbach conjecture.
+const fs = require('fs');
 
-const cachedPrimes = {}; // Cache for storing primes
+const { performance } = require('perf_hooks');
+
 
 function getPrimes(maxNumber) {
-  // Computes and returns all prime numbers up to 'maxNumber'
-  if (cachedPrimes[maxNumber]) {
-    return cachedPrimes[maxNumber];
-  }
+  const sieve = new Array(maxNumber + 1).fill(true); // Create an array to mark non-prime numbers
   const primes = [];
-  for (let value = 2; value <= maxNumber; value++) {
-    let isPrime = true;
-    for (const prime of primes) {
-      if (value % prime === 0) {
-        isPrime = false;
-        break;
+
+  // 0 and 1 are not prime
+  sieve[0] = false;
+  sieve[1] = false;
+
+  for (let i = 2; i <= Math.sqrt(maxNumber); i++) {
+    if (sieve[i]) {
+      // If i is prime, mark its multiples as non-prime
+      for (let j = i * i; j <= maxNumber; j += i) {
+        sieve[j] = false;
       }
     }
-    if (isPrime) {
-      primes.push(value);
+  }
+
+  // Collect all prime numbers
+  for (let i = 2; i <= maxNumber; i++) {
+    if (sieve[i]) {
+      primes.push(i);
     }
   }
-  cachedPrimes[maxNumber] = primes;
+
   return primes;
 }
+
 
 function goldbach(value) {
   // Returns a list of integers such that for each p in the list,
@@ -43,42 +50,66 @@ function goldbach(value) {
   return result;
 }
 
-function printGoldbach(value, primeList) {
+function printGoldbach(value, primeList, outputStream) {
   // Given the value of n and the output of goldbach(value),
-  // prints out the result to the screen.
+  // prints out the result to the provided output stream.
   if (primeList.length === 0) {
-    console.log(`We found no Goldbach pairs for ${value}.`);
+    const noPairsMsg = `We found no Goldbach pairs for ${value}.\n`;
+    outputStream.write(noPairsMsg);
+    console.log(noPairsMsg);
   } else {
-    console.log(`We found ${primeList.length} Goldbach pair(s) for ${value}.`);
+    const pairsMsg = `We found ${primeList.length} Goldbach pair(s) for ${value}.\n`;
+    outputStream.write(pairsMsg);
+    console.log(pairsMsg);
     for (const prime of primeList) {
       const difference = value - prime;
-      console.log(`${value} = ${prime} + ${difference}`);
+      const pairMsg = `${value} = ${prime} + ${difference}\n`;
+      outputStream.write(pairMsg);
+      console.log(pairMsg);
     }
   }
+  outputStream.write('\n');
   console.log('');
 }
 
 function main() {
-  // Entry point of the program.
-  const data = process.argv.slice(2).flatMap(filename => readfile(filename));
+  const inputFile = process.argv[2];
+  const outputFile = 'goldbach_results.txt';
+  const data = readfile(inputFile);
+  const outputStream = fs.createWriteStream(outputFile);
+
   if (data.length === 0) {
     data.push(3, 4, 14, 26, 100);
   }
+
+  const startTime = performance.now(); // Record the start time
+
   for (const value of data) {
-    printGoldbach(value, goldbach(value));
+    const goldbachPairs = goldbach(value);
+    printGoldbach(value, goldbachPairs, outputStream);
   }
+
+  outputStream.end();
+  const endTime = performance.now(); // Record the end time
+
+  const executionTime = (endTime - startTime) / 1000; // Convert milliseconds to seconds
+  console.log(`Execution time: ${executionTime.toFixed(2)} seconds`);
+
+  console.log(`Results have been written to ${outputFile}.`);
 }
+
 
 function readfile(filename) {
   // Reads and returns data from a file,
   // we assume no problem on opening and reading from the file.
-  const fs = require('fs');
   const data = [];
-  const lines = fs.readFileSync(filename, 'utf8').split('\n');
-  for (const line of lines) {
-    const parsedValue = parseInt(line.trim(), 10);
-    if (!isNaN(parsedValue)) {
-      data.push(parsedValue);
+  if (filename) {
+    const lines = fs.readFileSync(filename, 'utf8').split('\n');
+    for (const line of lines) {
+      const parsedValue = parseInt(line.trim(), 10);
+      if (!isNaN(parsedValue)) {
+        data.push(parsedValue);
+      }
     }
   }
   return data;
